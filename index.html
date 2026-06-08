@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fahir Fais · Senior IT-Systemadministrator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0a0a0a;
+  --bg2:       #111111;
+  --bg3:       #181818;
+  --card:      #141414;
+  --border:    #252525;
+  --accent:    #ff6a00;
+  --accent2:   #ff9a44;
+  --accent-dim:#ff6a0022;
+  --text:      #f0f0f0;
+  --text2:     #999999;
+  --text3:     #555555;
+  --white:     #ffffff;
+  --mono:      'Space Mono', monospace;
+  --sans:      'Manrope', sans-serif;
+  --display:   'Syne', sans-serif;
+  --radius:    12px;
+  --radius-lg: 20px;
+  --glow:      0 0 40px rgba(255,106,0,0.15);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.65; overflow-x: hidden; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+a { color: var(--accent); text-decoration: none; }
+
+/* LOADER */
+#loader { position: fixed; inset: 0; z-index: 9999; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 20px; transition: opacity 0.5s ease, visibility 0.5s ease; }
+#loader.hide { opacity: 0; visibility: hidden; }
+.loader-logo { font-family: var(--display); font-size: 2.5rem; font-weight: 800; color: var(--white); letter-spacing: -1px; }
+.loader-logo span { color: var(--accent); }
+.loader-bar { width: 200px; height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.loader-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; animation: loadbar 1.6s ease forwards; }
+@keyframes loadbar { from { width: 0; } to { width: 100%; } }
+.loader-text { font-family: var(--mono); font-size: 0.7rem; color: var(--text3); letter-spacing: 2px; }
+
+/* CANVAS */
+#bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.35; }
+
+/* LANG TOGGLE */
+.lang-toggle {
+  display: flex; align-items: center; gap: 0;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.lang-btn {
+  padding: 7px 14px;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--text3);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+}
+.lang-btn.active {
+  background: var(--accent);
+  color: var(--white);
+}
+.lang-btn:hover:not(.active) { color: var(--accent); }
+
+/* NAV */
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 0 6%; height: 70px; background: rgba(10,10,10,0.85); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
+nav.scrolled { border-bottom-color: var(--border); }
+.nav-logo { font-family: var(--display); font-size: 1.3rem; font-weight: 800; color: var(--white); letter-spacing: -0.5px; }
+.nav-logo span { color: var(--accent); }
+.nav-right { display: flex; align-items: center; gap: 24px; }
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a { font-family: var(--mono); font-size: 0.72rem; font-weight: 700; color: var(--text2); letter-spacing: 1.5px; text-transform: uppercase; transition: color 0.2s; }
+.nav-links a:hover { color: var(--accent); }
+.nav-cta { background: var(--accent); color: var(--white) !important; padding: 9px 20px; border-radius: 6px; font-family: var(--mono) !important; font-size: 0.68rem !important; letter-spacing: 1.5px; transition: background 0.2s, transform 0.15s !important; }
+.nav-cta:hover { background: var(--accent2) !important; transform: translateY(-1px); }
+.hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+.hamburger span { display: block; width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: 0.3s; }
+.mobile-menu { display: none; position: fixed; top: 70px; left: 0; right: 0; z-index: 999; background: rgba(10,10,10,0.97); backdrop-filter: blur(18px); padding: 24px 6%; border-bottom: 1px solid var(--border); flex-direction: column; gap: 20px; }
+.mobile-menu.open { display: flex; }
+.mobile-menu a { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 2px; color: var(--text2); text-transform: uppercase; transition: color 0.2s; }
+.mobile-menu a:hover { color: var(--accent); }
+.mobile-menu .lang-toggle { margin-top: 8px; }
+
+/* SECTIONS COMMON */
+section { position: relative; z-index: 1; padding: 100px 8%; }
+.section-label { font-family: var(--mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+.section-title { font-family: var(--display); font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 800; color: var(--white); line-height: 1.1; letter-spacing: -1px; margin-bottom: 16px; }
+.section-sub { font-size: 1rem; color: var(--text2); max-width: 560px; line-height: 1.7; }
+.divider { width: 48px; height: 3px; background: var(--accent); border-radius: 3px; margin-bottom: 24px; }
+.reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: none; }
+
+/* HERO */
+#hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 8% 80px; }
+.hero-inner { max-width: 900px; }
+.hero-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--accent-dim); border: 1px solid rgba(255,106,0,0.3); padding: 7px 16px; border-radius: 100px; margin-bottom: 32px; }
+.hero-badge-dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,106,0,0.5); } 50% { box-shadow: 0 0 0 6px rgba(255,106,0,0); } }
+.hero-badge-text { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent2); }
+.hero-name { font-family: var(--display); font-size: clamp(3rem, 7vw, 6.5rem); font-weight: 800; line-height: 0.95; letter-spacing: -3px; color: var(--white); margin-bottom: 8px; }
+.hero-name .accent { color: var(--accent); }
+.hero-title { font-family: var(--display); font-size: clamp(1.1rem, 2.5vw, 1.6rem); font-weight: 600; color: var(--text2); margin-bottom: 28px; letter-spacing: -0.3px; }
+.hero-title .typed-cursor { color: var(--accent); animation: blink 1s step-end infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.hero-desc { font-size: 1.05rem; color: var(--text2); max-width: 580px; line-height: 1.8; margin-bottom: 40px; }
+.hero-stats { display: flex; gap: 40px; margin-bottom: 44px; flex-wrap: wrap; }
+.stat-num { font-family: var(--display); font-size: 2.4rem; font-weight: 800; color: var(--white); line-height: 1; letter-spacing: -1px; }
+.stat-num span { color: var(--accent); }
+.stat-label { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); margin-top: 4px; }
+.hero-btns { display: flex; gap: 16px; flex-wrap: wrap; }
+.btn-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: var(--white); padding: 14px 28px; border-radius: var(--radius); font-family: var(--mono); font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; border: none; cursor: pointer; }
+.btn-primary:hover { background: var(--accent2); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,106,0,0.35); }
+.btn-secondary { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--text); padding: 14px 28px; border-radius: var(--radius); font-family: var(--mono); font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; border: 1px solid var(--border); transition: border-color 0.2s, color 0.2s, transform 0.15s; cursor: pointer; }
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+.hero-scroll { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.hero-scroll-line { width: 1px; height: 50px; background: linear-gradient(to bottom, var(--accent), transparent); animation: scrollline 2s ease-in-out infinite; }
+@keyframes scrollline { 0%, 100% { opacity: 0; transform: scaleY(0); transform-origin: top; } 50% { opacity: 1; transform: scaleY(1); } }
+.hero-scroll-text { font-family: var(--mono); font-size: 0.58rem; letter-spacing: 3px; text-transform: uppercase; color: var(--text3); }
+
+/* ABOUT */
+#about { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+.about-text p { color: var(--text2); font-size: 1rem; line-height: 1.85; margin-bottom: 16px; }
+.about-text p strong { color: var(--white); font-weight: 600; }
+.about-highlights { margin-top: 32px; display: flex; flex-direction: column; gap: 12px; }
+.highlight-item { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: var(--text2); }
+.highlight-item::before { content: ''; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; flex-shrink: 0; }
+.about-right { display: flex; flex-direction: column; gap: 20px; }
+.about-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; transition: border-color 0.2s, box-shadow 0.2s; }
+.about-card:hover { border-color: rgba(255,106,0,0.3); box-shadow: var(--glow); }
+.about-card-title { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 2.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+.about-card-text { font-size: 0.95rem; color: var(--text2); line-height: 1.7; }
+.about-card-text strong { color: var(--white); }
+
+/* SKILLS */
+#skills { background: var(--bg); }
+.skills-categories { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 60px; }
+.skill-category { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s; }
+.skill-category:hover { border-color: rgba(255,106,0,0.25); transform: translateY(-4px); box-shadow: 0 20px 50px rgba(0,0,0,0.4), var(--glow); }
+.skill-cat-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.skill-cat-icon { width: 40px; height: 40px; background: var(--accent-dim); border: 1px solid rgba(255,106,0,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+.skill-cat-name { font-family: var(--display); font-size: 0.95rem; font-weight: 700; color: var(--white); }
+.skill-items { display: flex; flex-direction: column; gap: 14px; }
+.skill-item-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.skill-name { font-size: 0.82rem; color: var(--text2); font-weight: 500; }
+.skill-pct { font-family: var(--mono); font-size: 0.68rem; color: var(--accent); }
+.skill-bar { height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.skill-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 4px; width: 0; transition: width 1.2s ease; }
+.skill-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.skill-tag { background: var(--bg3); border: 1px solid var(--border); padding: 5px 12px; border-radius: 100px; font-family: var(--mono); font-size: 0.63rem; letter-spacing: 1px; color: var(--text2); transition: color 0.2s, border-color 0.2s; }
+.skill-tag:hover { color: var(--accent); border-color: var(--accent); }
+
+/* PROJECTS */
+#projects { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px; margin-top: 60px; }
+.project-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; display: flex; flex-direction: column; gap: 20px; transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s; position: relative; overflow: hidden; }
+.project-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); opacity: 0; transition: opacity 0.3s; }
+.project-card:hover { border-color: rgba(255,106,0,0.25); transform: translateY(-6px); box-shadow: 0 24px 60px rgba(0,0,0,0.5), var(--glow); }
+.project-card:hover::before { opacity: 1; }
+.project-num { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 2px; color: var(--accent); }
+.project-title { font-family: var(--display); font-size: 1.2rem; font-weight: 700; color: var(--white); line-height: 1.2; }
+.project-desc { font-size: 0.9rem; color: var(--text2); line-height: 1.75; }
+.project-achievements { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.project-achievements li { font-size: 0.85rem; color: var(--text2); display: flex; align-items: flex-start; gap: 8px; }
+.project-achievements li::before { content: '→'; color: var(--accent); font-weight: 700; flex-shrink: 0; font-size: 0.75rem; margin-top: 2px; }
+.project-tech { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
+.tech-tag { background: var(--bg3); border: 1px solid var(--border); padding: 4px 10px; border-radius: 6px; font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.5px; color: var(--text2); }
+
+/* RESPONSIBILITIES */
+#responsibilities { background: var(--bg); }
+.resp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 60px; }
+.resp-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 24px; transition: border-color 0.25s, transform 0.25s; }
+.resp-card:hover { border-color: rgba(255,106,0,0.25); transform: translateY(-3px); }
+.resp-icon { font-size: 1.6rem; margin-bottom: 16px; }
+.resp-title { font-family: var(--display); font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 10px; }
+.resp-text { font-size: 0.85rem; color: var(--text2); line-height: 1.7; }
+
+/* TIMELINE */
+#experience { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.timeline { position: relative; margin-top: 60px; padding-left: 40px; }
+.timeline::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--accent), transparent); }
+.timeline-item { position: relative; margin-bottom: 50px; }
+.timeline-item::before { content: ''; position: absolute; left: -47px; top: 6px; width: 14px; height: 14px; background: var(--accent); border-radius: 50%; border: 3px solid var(--bg2); box-shadow: 0 0 10px rgba(255,106,0,0.5); }
+.timeline-period { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 2px; color: var(--accent); margin-bottom: 8px; }
+.timeline-company { font-family: var(--display); font-size: 1.3rem; font-weight: 800; color: var(--white); margin-bottom: 2px; }
+.timeline-role { font-size: 0.95rem; font-weight: 600; color: var(--text2); margin-bottom: 14px; }
+.timeline-desc { font-size: 0.88rem; color: var(--text2); line-height: 1.75; max-width: 640px; }
+.timeline-tech { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+
+/* CERTIFICATIONS */
+#certifications { background: var(--bg); }
+.certs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 60px; }
+.cert-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; display: flex; align-items: flex-start; gap: 20px; transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s; }
+.cert-card:hover { border-color: rgba(255,106,0,0.3); transform: translateY(-3px); box-shadow: var(--glow); }
+.cert-icon { width: 52px; height: 52px; flex-shrink: 0; background: var(--accent-dim); border: 1px solid rgba(255,106,0,0.25); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+.cert-name { font-family: var(--display); font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 4px; line-height: 1.3; }
+.cert-issuer { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 1.5px; color: var(--text3); text-transform: uppercase; }
+
+/* HOMELAB */
+#homelab { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.homelab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 60px; align-items: start; }
+.homelab-arch { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; }
+.homelab-arch-title { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 2.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 24px; }
+.arch-layer { border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 12px; transition: border-color 0.2s; }
+.arch-layer:hover { border-color: rgba(255,106,0,0.3); }
+.arch-layer-label { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
+.arch-layer-items { display: flex; flex-wrap: wrap; gap: 8px; }
+.arch-item { background: var(--bg3); border: 1px solid var(--border); padding: 4px 12px; border-radius: 6px; font-size: 0.78rem; color: var(--text2); font-weight: 500; }
+.homelab-tools { display: flex; flex-direction: column; gap: 16px; }
+.homelab-tool { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; display: flex; align-items: center; gap: 16px; transition: border-color 0.2s, transform 0.2s; }
+.homelab-tool:hover { border-color: rgba(255,106,0,0.25); transform: translateX(4px); }
+.homelab-tool-icon { font-size: 1.5rem; flex-shrink: 0; }
+.homelab-tool-name { font-weight: 700; color: var(--white); font-size: 0.95rem; margin-bottom: 3px; }
+.homelab-tool-desc { font-size: 0.8rem; color: var(--text2); }
+
+/* LEARNING */
+#learning { background: var(--bg); }
+.learning-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-top: 60px; }
+.learning-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; text-align: center; transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s; }
+.learning-card:hover { border-color: rgba(255,106,0,0.25); transform: translateY(-4px); box-shadow: var(--glow); }
+.learning-icon { font-size: 2.2rem; margin-bottom: 16px; }
+.learning-title { font-family: var(--display); font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+.learning-text { font-size: 0.82rem; color: var(--text2); line-height: 1.65; }
+.learning-badge { display: inline-block; margin-top: 14px; background: var(--accent-dim); border: 1px solid rgba(255,106,0,0.2); padding: 4px 12px; border-radius: 100px; font-family: var(--mono); font-size: 0.6rem; letter-spacing: 1.5px; color: var(--accent); text-transform: uppercase; }
+
+/* CONTACT */
+#contact { background: var(--bg2); border-top: 1px solid var(--border); }
+.contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: start; margin-top: 60px; }
+.contact-info { display: flex; flex-direction: column; gap: 20px; }
+.contact-item { display: flex; align-items: center; gap: 16px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 22px; transition: border-color 0.2s, transform 0.2s; }
+.contact-item:hover { border-color: rgba(255,106,0,0.25); transform: translateX(4px); }
+.contact-item-icon { width: 40px; height: 40px; background: var(--accent-dim); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.contact-item-label { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 2px; color: var(--text3); text-transform: uppercase; margin-bottom: 2px; }
+.contact-item-value { font-size: 0.9rem; color: var(--text); font-weight: 500; }
+.contact-form { display: flex; flex-direction: column; gap: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-family: var(--mono); font-size: 0.63rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); }
+.form-input, .form-textarea { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; color: var(--text); font-family: var(--sans); font-size: 0.9rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; }
+.form-input:focus, .form-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,106,0,0.08); }
+.form-textarea { resize: vertical; min-height: 130px; }
+.form-submit { background: var(--accent); color: var(--white); padding: 15px 32px; border-radius: var(--radius); font-family: var(--mono); font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; border: none; cursor: pointer; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; }
+.form-submit:hover { background: var(--accent2); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,106,0,0.35); }
+
+/* FOOTER */
+footer { position: relative; z-index: 1; background: var(--bg); border-top: 1px solid var(--border); padding: 40px 8%; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+.footer-logo { font-family: var(--display); font-size: 1.1rem; font-weight: 800; color: var(--white); }
+.footer-logo span { color: var(--accent); }
+.footer-text { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 1.5px; color: var(--text3); }
+.footer-links { display: flex; gap: 24px; list-style: none; }
+.footer-links a { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 1.5px; color: var(--text3); text-transform: uppercase; transition: color 0.2s; }
+.footer-links a:hover { color: var(--accent); }
+
+/* BACK TO TOP */
+#back-top { position: fixed; bottom: 30px; right: 30px; width: 44px; height: 44px; background: var(--accent); border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transform: translateY(10px); transition: opacity 0.3s, transform 0.3s, background 0.2s; z-index: 900; border: none; }
+#back-top.show { opacity: 1; transform: none; }
+#back-top:hover { background: var(--accent2); }
+#back-top svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2.5; }
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .about-grid, .homelab-grid, .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+}
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .nav-right .lang-toggle { display: none; }
+  .hamburger { display: flex; }
+  section { padding: 70px 5%; }
+  .hero-stats { gap: 28px; }
+  .timeline { padding-left: 24px; }
+  .timeline-item::before { left: -31px; }
+  footer { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-logo">F<span>.</span>Fais</div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+  <div class="loader-text" data-de="Initializing System..." data-en="Initializing System...">Initializing System...</div>
+</div>
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-logo">F<span>.</span>Fais</div>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="#about" data-de="Über mich" data-en="About">Über mich</a></li>
+      <li><a href="#skills" data-de="Skills" data-en="Skills">Skills</a></li>
+      <li><a href="#projects" data-de="Projekte" data-en="Projects">Projekte</a></li>
+      <li><a href="#experience" data-de="Erfahrung" data-en="Experience">Erfahrung</a></li>
+      <li><a href="#homelab" data-de="Homelab" data-en="Homelab">Homelab</a></li>
+      <li><a href="#contact" class="nav-cta" data-de="Kontakt" data-en="Contact">Kontakt</a></li>
+    </ul>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-de" onclick="setLang('de')">DE</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#about" onclick="closeMobileMenu()" data-de="Über mich" data-en="About">Über mich</a>
+  <a href="#skills" onclick="closeMobileMenu()" data-de="Skills" data-en="Skills">Skills</a>
+  <a href="#projects" onclick="closeMobileMenu()" data-de="Projekte" data-en="Projects">Projekte</a>
+  <a href="#experience" onclick="closeMobileMenu()" data-de="Erfahrung" data-en="Experience">Erfahrung</a>
+  <a href="#homelab" onclick="closeMobileMenu()" data-de="Homelab" data-en="Homelab">Homelab</a>
+  <a href="#contact" onclick="closeMobileMenu()" data-de="Kontakt" data-en="Contact">Kontakt</a>
+  <div class="lang-toggle" style="margin-top:8px;">
+    <button class="lang-btn active" onclick="setLang('de');closeMobileMenu()">DE</button>
+    <button class="lang-btn" onclick="setLang('en');closeMobileMenu()">EN</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-inner reveal">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      <span class="hero-badge-text" data-de="Open to new opportunities · Ettlingen, Germany" data-en="Open to new opportunities · Ettlingen, Germany">Open to new opportunities · Ettlingen, Germany</span>
+    </div>
+    <div class="hero-name">Fahir<br><span class="accent">Fais.</span></div>
+    <div class="hero-title">
+      <span id="typed-title"></span><span class="typed-cursor">|</span>
+    </div>
+    <p class="hero-desc" data-de="Senior IT-Systemadministrator mit über <strong>15 Jahren Erfahrung</strong> in hybriden IT-Infrastrukturen, Microsoft 365, Windows Server und Cloud-Technologien (Azure/AWS). Fundierte Kenntnisse in Virtualisierung, Active Directory, IT-Security sowie Automatisierung mit PowerShell. Fokus auf stabile, sichere und moderne Enterprise-Umgebungen. 1st- bis 2nd-Level-Support." data-en="Senior IT Systems Administrator with over <strong>15 years of experience</strong> in hybrid IT infrastructures, Microsoft 365, Windows Server, and cloud technologies (Azure/AWS). Solid expertise in virtualization, Active Directory, IT security, and automation with PowerShell. Focus on stable, secure, and modern enterprise environments. 1st to 2nd level support.">
+      Senior IT-Systemadministrator mit über <strong>15 Jahren Erfahrung</strong> in hybriden IT-Infrastrukturen, Microsoft 365, Windows Server und Cloud-Technologien (Azure/AWS). Fundierte Kenntnisse in Virtualisierung, Active Directory, IT-Security sowie Automatisierung mit PowerShell. Fokus auf stabile, sichere und moderne Enterprise-Umgebungen. 1st- bis 2nd-Level-Support.
+    </p>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num">15<span>+</span></div>
+        <div class="stat-label" data-de="Jahre Erfahrung" data-en="Years Experience">Jahre Erfahrung</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">7<span>+</span></div>
+        <div class="stat-label" data-de="Grossprojekte" data-en="Major Projects">Grossprojekte</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">80<span>+</span></div>
+        <div class="stat-label" data-de="Mitarbeiter betreut" data-en="Users Supported">Mitarbeiter betreut</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">30<span>+</span></div>
+        <div class="stat-label" data-de="Technologien" data-en="Technologies">Technologien</div>
+      </div>
+    </div>
+    <div class="hero-btns">
+      <a href="#projects" class="btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+        <span data-de="Projekte ansehen" data-en="View Projects">Projekte ansehen</span>
+      </a>
+      <a href="#contact" class="btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <span data-de="Kontakt aufnehmen" data-en="Get In Touch">Kontakt aufnehmen</span>
+      </a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="hero-scroll-line"></div>
+    <div class="hero-scroll-text">Scroll</div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <div class="section-label" data-de="// Über mich" data-en="// About Me">// Über mich</div>
+      <h2 class="section-title" data-de="Infrastruktur ist meine Leidenschaft." data-en="Infrastructure is my passion.">Infrastruktur ist meine Leidenschaft.</h2>
+      <div class="divider"></div>
+      <p data-de="IT ist mehr als nur mein Beruf – es ist meine Leidenschaft." data-en="IT is more than just my job – it is my passion.">IT ist mehr als nur mein Beruf – es ist meine Leidenschaft.</p>
+      <p data-de="Seit über <strong>15 Jahren</strong> arbeite ich in der IT-Infrastruktur und habe mich auf moderne Enterprise-Umgebungen spezialisiert. Mein Schwerpunkt liegt auf der Planung, dem Betrieb und der Absicherung hybrider IT-Landschaften." data-en="For over <strong>15 years</strong> I have worked in IT infrastructure, specializing in modern enterprise environments. My focus is on planning, operating, and securing hybrid IT landscapes.">Seit über <strong>15 Jahren</strong> arbeite ich in der IT-Infrastruktur und habe mich auf moderne Enterprise-Umgebungen spezialisiert. Mein Schwerpunkt liegt auf der Planung, dem Betrieb und der Absicherung hybrider IT-Landschaften.</p>
+      <p data-de="Heute verantworte ich bei meinem aktuellen Arbeitgeber die gesamte IT-Infrastruktur von rund <strong>80 Mitarbeitern</strong> — von VPN und Firewall über Microsoft 365 und Intune bis hin zu Backup, Monitoring und IT-Security." data-en="Today I am responsible for the entire IT infrastructure of approximately <strong>80 employees</strong> at my current employer — from VPN and firewall to Microsoft 365 and Intune, through to backup, monitoring, and IT security.">Heute verantworte ich bei meinem aktuellen Arbeitgeber die gesamte IT-Infrastruktur von rund <strong>80 Mitarbeitern</strong> — von VPN und Firewall über Microsoft 365 und Intune bis hin zu Backup, Monitoring und IT-Security.</p>
+      <p data-de="<strong>Mein Ziel:</strong> stabile, sichere und skalierbare IT-Systeme, die Unternehmen dabei helfen, effizienter zu arbeiten." data-en="<strong>My goal:</strong> stable, secure, and scalable IT systems that help companies work more efficiently."><strong>Mein Ziel:</strong> stabile, sichere und skalierbare IT-Systeme, die Unternehmen dabei helfen, effizienter zu arbeiten.</p>
+      <div class="about-highlights">
+        <div class="highlight-item" data-de="Spezialist für Microsoft-Ökosystem (M365, Entra ID, Intune, Azure)" data-en="Specialist in the Microsoft ecosystem (M365, Entra ID, Intune, Azure)">Spezialist für Microsoft-Ökosystem (M365, Entra ID, Intune, Azure)</div>
+        <div class="highlight-item" data-de="Erfahrung mit Sophos, Palo Alto, Cortex XDR & Zero Trust" data-en="Experience with Sophos, Palo Alto, Cortex XDR & Zero Trust">Erfahrung mit Sophos, Palo Alto, Cortex XDR & Zero Trust</div>
+        <div class="highlight-item" data-de="Homelab-Betreiber: Proxmox, Docker, Self-Hosted Services" data-en="Homelab operator: Proxmox, Docker, self-hosted services">Homelab-Betreiber: Proxmox, Docker, Self-Hosted Services</div>
+        <div class="highlight-item" data-de="Scripting und Automatisierung komplexer IT-Prozesse zur Reduktion manueller Aufwände" data-en="Scripting and automation of complex IT processes to reduce manual workloads">Scripting und Automatisierung komplexer IT-Prozesse zur Reduktion manueller Aufwände</div>
+        <div class="highlight-item" data-de="Technischer Ansprechpartner für interne Teams und externe Dienstleister" data-en="Technical point of contact for internal teams and external service providers">Technischer Ansprechpartner für interne Teams und externe Dienstleister</div>
+      </div>
+    </div>
+    <div class="about-right reveal">
+      <div class="about-card">
+        <div class="about-card-title" data-de="// Aktueller Fokus" data-en="// Current Focus">// Aktueller Fokus</div>
+        <div class="about-card-text" data-de="Modernisierung der <strong>Microsoft-365-Umgebung</strong> (Exchange Online, Entra ID, Intune), Implementierung von Conditional Access Policies sowie Verbesserung der Identity- und Access-Management-Sicherheit in hybriden IT-Infrastrukturen." data-en="Modernisation of the <strong>Microsoft 365 environment</strong> (Exchange Online, Entra ID, Intune), implementation of Conditional Access Policies, and improvement of identity and access management security in hybrid IT infrastructures.">Modernisierung der <strong>Microsoft-365-Umgebung</strong> (Exchange Online, Entra ID, Intune), Implementierung von Conditional Access Policies sowie Verbesserung der Identity- und Access-Management-Sicherheit in hybriden IT-Infrastrukturen.</div>
+      </div>
+      <div class="about-card">
+        <div class="about-card-title" data-de="// Lernziele 2026" data-en="// Learning Goals 2026">// Lernziele 2026</div>
+        <div class="about-card-text" data-de="Vertiefung der Kenntnisse in <strong>Generative AI</strong>. Der Fokus liegt auf KI-gestützten Sicherheitsanalysen und der automatischen Erkennung von Bedrohungen. Dabei werden KI-Tools mit Cloud Security und Microsoft Defender for Endpoint verknüpft." data-en="Deepening knowledge in <strong>Generative AI</strong>. The focus is on AI-assisted security analyses and the automatic detection of threats, combining AI tools with cloud security and Microsoft Defender for Endpoint.">Vertiefung der Kenntnisse in <strong>Generative AI</strong>. Der Fokus liegt auf KI-gestützten Sicherheitsanalysen und der automatischen Erkennung von Bedrohungen. Dabei werden KI-Tools mit Cloud Security und Microsoft Defender for Endpoint verknüpft.</div>
+      </div>
+      <div class="about-card">
+        <div class="about-card-title" data-de="// Standort" data-en="// Location">// Standort</div>
+        <div class="about-card-text" data-de="Ettlingen, Deutschland · <strong>Remote-freundlich</strong> · Verfügbar für hybride Positionen im Raum Karlsruhe / Deutschland." data-en="Ettlingen, Germany · <strong>Remote-friendly</strong> · Available for hybrid positions in the Karlsruhe area / Germany.">Ettlingen, Deutschland · <strong>Remote-freundlich</strong> · Verfügbar für hybride Positionen im Raum Karlsruhe / Deutschland.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div style="text-align:center; max-width:600px; margin:0 auto 16px;" class="reveal">
+    <div class="section-label" data-de="// Technische Expertise" data-en="// Technical Expertise">// Technische Expertise</div>
+    <h2 class="section-title" data-de="Kernkompetenzen" data-en="Core Competencies">Kernkompetenzen</h2>
+    <div class="divider" style="margin:16px auto;"></div>
+    <p class="section-sub" data-de="Über 15 Jahre akkumuliertes Know-how in Enterprise IT, Cloud und Security." data-en="Over 15 years of accumulated expertise in enterprise IT, cloud, and security.">Über 15 Jahre akkumuliertes Know-how in Enterprise IT, Cloud und Security.</p>
+  </div>
+  <div class="skills-categories reveal">
+    <div class="skill-category">
+      <div class="skill-cat-header">
+        <div class="skill-cat-icon">☁️</div>
+        <div class="skill-cat-name" data-de="Cloud & Infrastruktur" data-en="Cloud & Infrastructure">Cloud & Infrastruktur</div>
+      </div>
+      <div class="skill-items">
+        <div class="skill-item"><div class="skill-item-top"><span class="skill-name">Microsoft Azure</span><span class="skill-pct">85%</span></div><div class="skill-bar"><div class="skill-fill" data-width="85"></div></div></div>
+        <div class="skill-item"><div class="skill-item-top"><span class="skill-name" data-de="Hybrid Cloud / On-Prem" data-en="Hybrid Cloud / On-Prem">Hybrid Cloud / On-Prem</span><span class="skill-pct">90%</span></div><div class="skill-bar"><div class="skill-fill" data-width="90"></div></div></div>
+        <div class="skill-item"><div class="skill-item-top"><span class="skill-name">Microsoft 365</span><span class="skill-pct">92%</span></div><div class="skill-bar"><div class="skill-fill" data-width="92"></div></div></div>
+        <div class="skill-item"><div class="skill-item-top"><span class="skill-name">AWS (EC2, S3, IAM)</span><span class="skill-pct">60%</span></div><div class="skill-bar"><div class="skill-fill" data-width="60"></div></div></div>
+      </div>
+      <div class="skill-tags"><span class="skill-tag">Entra ID</span><span class="skill-tag">Exchange Online</span><span class="skill-tag">SharePoint</span><span class="skill-tag">Teams</span></div>
+    </div>
+    <div class="skill-category">
+      <div class="skill-cat-header">
+        <div class="skill-cat-icon">🖥️</div>
+        <div class="skill-cat-name" data-de="System Administration" data-en="System Administration">System Administration</div>
+      </div>
+      <div class="skill-items">
+        <div class="skill-item"><div class="skill-item-top"><span class="skill-name">Windows Server</span><span class="skill-pct">95%</span></div><div class="skill-bar"><div class="skill-fill" data-width="95"></div></div></div>
+        <div class="skill-item"><div class="skill-item-top"><span class="skill-name">Active Directory & GPO</span><span class="skill-pct">93%</span></div><div class="skill-bar"><div class="skill-fill" data-width="93"></div></div></div>
+        <div class="skill-item"><div class="skill-item-top"><span class="skill-name">Linux (Ubuntu, Debian)</span><span class="skill-pct">75%</span></div><div class="skill-bar"><div class="skill-fill" data-width="75"></div></div></div>
+        <div class="skill-item"><div class="skill-item-top"><span class="skill-name">VMware / Hyper-V / Proxmox</span><span class="skill-pct">88%</span></div><div class="skill-bar"><div class="skill-fill" data-width="88"></div></div></div>
+      </div>
+      <div class="skill-tags"><span class="skill-tag">DNS/DHCP</span><span class="skill-tag">File Server</span><span class="skill-tag">RDS/Terminalserver</span></div>
+    </div>
+    <div class="skill-category">
+      <div class="skill-cat-header">
+        <div class="skill-cat-icon">🛡️</div>
+        <div class="skill-cat-name" data-de="Netzwerk & Security" data-en="Network & Security">Netzwerk & Security</div>
+      </div>
+      <div class="skill-items">
+        <div class="skill-item"><div class="skill-item-top"><span class="skill-name">Sophos XG / UTM</span><span class="skill-pct">90%</span></div><div class="skill-bar"><div class="skill-fill" data-width="90"></div></div></div>
+        <div class="skill-item"><div class="skill-item-top"><span class="skill-name">Palo Alto / Cortex XDR</span><span class="skill-pct">80%</span></div><div class="skill-bar"><div class="skill-fill" data-width="80"></div></div></div>
+        <div class="skill-item"><div class="skill-item-top"><span class="skill-name">VPN / VLAN / Zero Trust</span><span class="skill-pct">88%</span></div><div class="skill-bar"><div class="skill-fill" data-width="88"></div></div></div>
+        <div class="skill-item"><div class="skill-item-top"><span class="skill-name">MFA / Conditional Access</span><span class="skill-pct">85%</span></div><div class="skill-bar"><div class="skill-fill" data-width="85"></div></div></div>
+      </div>
+      <div class="skill-tags"><span class="skill-tag">Firewall</span><span class="skill-tag">PKI</span><span class="skill-tag">WLAN</span><span class="skill-tag">Routing</span></div>
+    </div>
+    <div class="skill-category">
+      <div class="skill-cat-header">
+        <div class="skill-cat-icon">📦</div>
+        <div class="skill-cat-name" data-de="Endpoint & Device Mgmt" data-en="Endpoint & Device Mgmt">Endpoint & Device Mgmt</div>
+      </div>
+      <div class="skill-items">
+        <div class="skill-item"><div class="skill-item-top"><span class="skill-name">Microsoft Intune</span><span class="skill-pct">87%</span></div><div class="skill-bar"><div class="skill-fill" data-width="87"></div></div></div>
+        <div class="skill-item"><div class="skill-item-top"><span class="skill-name">Baramundi MDM</span><span class="skill-pct">85%</span></div><div class="skill-bar"><div class="skill-fill" data-width="85"></div></div></div>
+      </div>
+      <div class="skill-tags"><span class="skill-tag">SCCM/CM</span><span class="skill-tag">Autopilot</span><span class="skill-tag">MDM Policies</span><span class="skill-tag">App Deployment</span></div>
+    </div>
+    <div class="skill-category">
+      <div class="skill-cat-header">
+        <div class="skill-cat-icon">🔄</div>
+        <div class="skill-cat-name" data-de="Backup & Monitoring" data-en="Backup & Monitoring">Backup & Monitoring</div>
+      </div>
+      <div class="skill-items">
+        <div class="skill-item"><div class="skill-item-top"><span class="skill-name">Veeam Backup</span><span class="skill-pct">88%</span></div><div class="skill-bar"><div class="skill-fill" data-width="88"></div></div></div>
+        <div class="skill-item"><div class="skill-item-top"><span class="skill-name">PRTG / Nagios XI</span><span class="skill-pct">82%</span></div><div class="skill-bar"><div class="skill-fill" data-width="82"></div></div></div>
+      </div>
+      <div class="skill-tags"><span class="skill-tag">Symantec</span><span class="skill-tag">Alerting</span><span class="skill-tag">Log Management</span></div>
+    </div>
+    <div class="skill-category">
+      <div class="skill-cat-header">
+        <div class="skill-cat-icon">⚡</div>
+        <div class="skill-cat-name" data-de="Automation & Scripting" data-en="Automation & Scripting">Automation & Scripting</div>
+      </div>
+      <div class="skill-items">
+        <div class="skill-item"><div class="skill-item-top"><span class="skill-name">PowerShell</span><span class="skill-pct">85%</span></div><div class="skill-bar"><div class="skill-fill" data-width="85"></div></div></div>
+        <div class="skill-item"><div class="skill-item-top"><span class="skill-name">Bash / Shell</span><span class="skill-pct">72%</span></div><div class="skill-bar"><div class="skill-fill" data-width="72"></div></div></div>
+        <div class="skill-item"><div class="skill-item-top"><span class="skill-name">Python</span><span class="skill-pct">55%</span></div><div class="skill-bar"><div class="skill-fill" data-width="55"></div></div></div>
+      </div>
+      <div class="skill-tags"><span class="skill-tag">GPO Scripts</span><span class="skill-tag">Task Automation</span><span class="skill-tag">Docker</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="reveal">
+    <div class="section-label" data-de="// Ausgewählte Projekte" data-en="// Selected Projects">// Ausgewählte Projekte</div>
+    <h2 class="section-title" data-de="Realisierte Infrastrukturprojekte" data-en="Completed Infrastructure Projects">Realisierte Infrastrukturprojekte</h2>
+    <div class="divider"></div>
+    <p class="section-sub" data-de="Enterprise-Migrationsprojekte, Sicherheitsarchitekturen und Infrastrukturmodernisierungen aus meiner Karriere." data-en="Enterprise migration projects, security architectures, and infrastructure modernisations from my career.">Enterprise-Migrationsprojekte, Sicherheitsarchitekturen und Infrastrukturmodernisierungen aus meiner Karriere.</p>
+  </div>
+  <div class="projects-grid">
+
+    <div class="project-card reveal">
+      <div class="project-num">01 · MIGRATION</div>
+      <div class="project-title" data-de="Cloud Migration<br>On-Prem → Azure" data-en="Cloud Migration<br>On-Prem → Azure">Cloud Migration<br>On-Prem → Azure</div>
+      <div class="project-desc" data-de="Vollständige Migration einer On-Premise Exchange-Umgebung nach Microsoft 365 und Azure, inklusive Identitätssynchronisation und hybrider Konfiguration." data-en="Full migration of an on-premise Exchange environment to Microsoft 365 and Azure, including identity synchronisation and hybrid configuration.">Vollständige Migration einer On-Premise Exchange-Umgebung nach Microsoft 365 und Azure, inklusive Identitätssynchronisation und hybrider Konfiguration.</div>
+      <ul class="project-achievements">
+        <li data-de="Exchange 2016 erfolgreich nach M365 migriert" data-en="Exchange 2016 successfully migrated to M365">Exchange 2016 erfolgreich nach M365 migriert</li>
+        <li data-de="Hybrid-Konfiguration mit Entra ID Connect eingerichtet" data-en="Hybrid configuration set up with Entra ID Connect">Hybrid-Konfiguration mit Entra ID Connect eingerichtet</li>
+        <li data-de="Zero Downtime für 80+ User-Postfächer" data-en="Zero downtime for 80+ user mailboxes">Zero Downtime für 80+ User-Postfächer</li>
+        <li data-de="SSO & MFA für alle Benutzer implementiert" data-en="SSO & MFA implemented for all users">SSO & MFA für alle Benutzer implementiert</li>
+      </ul>
+      <div class="project-tech"><span class="tech-tag">Azure</span><span class="tech-tag">M365</span><span class="tech-tag">Exchange</span><span class="tech-tag">Entra ID</span><span class="tech-tag">PowerShell</span></div>
+    </div>
+
+    <div class="project-card reveal">
+      <div class="project-num">02 · MIGRATION</div>
+      <div class="project-title" data-de="Windows 10 → 11<br>Unternehmensrollout" data-en="Windows 10 → 11<br>Enterprise Rollout">Windows 10 → 11<br>Unternehmensrollout</div>
+      <div class="project-desc" data-de="Flächendeckende Migration aller Unternehmensgeräte von Windows 10 auf Windows 11 mit zentralem Management über Intune und Baramundi." data-en="Company-wide migration of all devices from Windows 10 to Windows 11 with central management via Intune and Baramundi.">Flächendeckende Migration aller Unternehmensgeräte von Windows 10 auf Windows 11 mit zentralem Management über Intune und Baramundi.</div>
+      <ul class="project-achievements">
+        <li data-de="Kompatibilitätsanalyse aller Endgeräte" data-en="Compatibility analysis of all endpoints">Kompatibilitätsanalyse aller Endgeräte</li>
+        <li data-de="Stufenweiser Rollout über Baramundi & Intune" data-en="Phased rollout via Baramundi & Intune">Stufenweiser Rollout über Baramundi & Intune</li>
+        <li data-de="Gruppenrichtlinien (GPO) neu strukturiert" data-en="Group policies (GPO) restructured">Gruppenrichtlinien (GPO) neu strukturiert</li>
+        <li data-de="Helpdesk-Ticket-Aufkommen um 40% gesenkt" data-en="Helpdesk ticket volume reduced by 40%">Helpdesk-Ticket-Aufkommen um 40% gesenkt</li>
+      </ul>
+      <div class="project-tech"><span class="tech-tag">Intune</span><span class="tech-tag">Baramundi</span><span class="tech-tag">GPO</span><span class="tech-tag">Windows 11</span></div>
+    </div>
+
+    <div class="project-card reveal">
+      <div class="project-num">03 · MDM</div>
+      <div class="project-title" data-de="Intune & Baramundi<br>MDM Rollout" data-en="Intune & Baramundi<br>MDM Rollout">Intune & Baramundi<br>MDM Rollout</div>
+      <div class="project-desc" data-de="Aufbau einer zentralen Mobile Device Management Plattform für alle Unternehmensgeräte — Laptops, Smartphones und Tablets — mit automatisierter Compliance-Überwachung." data-en="Establishment of a central Mobile Device Management platform for all company devices — laptops, smartphones, and tablets — with automated compliance monitoring.">Aufbau einer zentralen Mobile Device Management Plattform für alle Unternehmensgeräte — Laptops, Smartphones und Tablets — mit automatisierter Compliance-Überwachung.</div>
+      <ul class="project-achievements">
+        <li data-de="Intune-Tenant komplett neu eingerichtet" data-en="Intune tenant completely set up from scratch">Intune-Tenant komplett neu eingerichtet</li>
+        <li data-de="Conditional Access Policies definiert" data-en="Conditional Access Policies defined">Conditional Access Policies definiert</li>
+        <li data-de="App-Deployment zentral gesteuert" data-en="App deployment centrally managed">App-Deployment zentral gesteuert</li>
+        <li data-de="BYOD-Policy mit MAM-Richtlinien umgesetzt" data-en="BYOD policy implemented with MAM policies">BYOD-Policy mit MAM-Richtlinien umgesetzt</li>
+      </ul>
+      <div class="project-tech"><span class="tech-tag">Intune</span><span class="tech-tag">Entra ID</span><span class="tech-tag">Baramundi</span><span class="tech-tag">MFA</span></div>
+    </div>
+
+    <div class="project-card reveal">
+      <div class="project-num">04 · SECURITY</div>
+      <div class="project-title" data-de="Sophos UTM → XG<br>Firewall Migration" data-en="Sophos UTM → XG<br>Firewall Migration">Sophos UTM → XG<br>Firewall Migration</div>
+      <div class="project-desc" data-de="Vollständige Migration der Netzwerksicherheitsinfrastruktur von Sophos UTM auf die moderne Sophos XG-Plattform mit Next-Gen Threat Protection und verbessertem SSL-Inspection." data-en="Full migration of the network security infrastructure from Sophos UTM to the modern Sophos XG platform with next-gen threat protection and improved SSL inspection.">Vollständige Migration der Netzwerksicherheitsinfrastruktur von Sophos UTM auf die moderne Sophos XG-Plattform mit Next-Gen Threat Protection und verbessertem SSL-Inspection.</div>
+      <ul class="project-achievements">
+        <li data-de="Alle UTM-Regeln analysiert & auf XG portiert" data-en="All UTM rules analysed & ported to XG">Alle UTM-Regeln analysiert & auf XG portiert</li>
+        <li data-de="Web Application Firewall konfiguriert" data-en="Web Application Firewall configured">Web Application Firewall konfiguriert</li>
+        <li data-de="SSL/TLS Inspection aktiviert" data-en="SSL/TLS Inspection enabled">SSL/TLS Inspection aktiviert</li>
+        <li data-de="VPN-Gateways neu implementiert" data-en="VPN gateways re-implemented">VPN-Gateways neu implementiert</li>
+      </ul>
+      <div class="project-tech"><span class="tech-tag">Sophos XG</span><span class="tech-tag">Sophos UTM</span><span class="tech-tag">VPN</span><span class="tech-tag">VLAN</span></div>
+    </div>
+
+    <div class="project-card reveal">
+      <div class="project-num">05 · NETWORK</div>
+      <div class="project-title" data-de="WLAN AP Rollout<br>& Migration" data-en="WLAN AP Rollout<br>& Migration">WLAN AP Rollout<br>& Migration</div>
+      <div class="project-desc" data-de="Unternehmensweiter Austausch der gesamten WLAN-Infrastruktur mit neuen Enterprise Access Points, zentralem Controller-Management und segmentierten Netzwerken." data-en="Company-wide replacement of the entire WLAN infrastructure with new enterprise access points, central controller management, and segmented networks.">Unternehmensweiter Austausch der gesamten WLAN-Infrastruktur mit neuen Enterprise Access Points, zentralem Controller-Management und segmentierten Netzwerken.</div>
+      <ul class="project-achievements">
+        <li data-de="Standortbezogene RF-Planung durchgeführt" data-en="Site-specific RF planning carried out">Standortbezogene RF-Planung durchgeführt</li>
+        <li data-de="Guest-VLAN von Corporate-Netz getrennt" data-en="Guest VLAN separated from corporate network">Guest-VLAN von Corporate-Netz getrennt</li>
+        <li data-de="802.1X-Authentifizierung via RADIUS eingerichtet" data-en="802.1X authentication via RADIUS configured">802.1X-Authentifizierung via RADIUS eingerichtet</li>
+        <li data-de="Signalstärke & Coverage optimiert" data-en="Signal strength & coverage optimised">Signalstärke & Coverage optimiert</li>
+      </ul>
+      <div class="project-tech"><span class="tech-tag">WLAN</span><span class="tech-tag">RADIUS</span><span class="tech-tag">VLAN</span><span class="tech-tag">802.1X</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- RESPONSIBILITIES -->
+<section id="responsibilities">
+  <div class="reveal">
+    <div class="section-label" data-de="// Tägliche Aufgaben" data-en="// Daily Responsibilities">// Tägliche Aufgaben</div>
+    <h2 class="section-title" data-de="Meine Verantwortungsbereiche" data-en="My Areas of Responsibility">Meine Verantwortungsbereiche</h2>
+    <div class="divider"></div>
+  </div>
+  <div class="resp-grid">
+    <div class="resp-card reveal"><div class="resp-icon">☁️</div><div class="resp-title" data-de="Microsoft 365 Admin" data-en="Microsoft 365 Admin">Microsoft 365 Admin</div><div class="resp-text" data-de="Verwaltung von Exchange Online, Teams, SharePoint und Entra ID. User- und Lizenzverwaltung für 80+ Mitarbeiter." data-en="Administration of Exchange Online, Teams, SharePoint, and Entra ID. User and licence management for 80+ employees.">Verwaltung von Exchange Online, Teams, SharePoint und Entra ID. User- und Lizenzverwaltung für 80+ Mitarbeiter.</div></div>
+    <div class="resp-card reveal"><div class="resp-icon">🔐</div><div class="resp-title" data-de="VPN & Firewall" data-en="VPN & Firewall">VPN & Firewall</div><div class="resp-text" data-de="Betrieb und Konfiguration der Unternehmens-Firewall und VPN-Zugänge. Aktueller Rollout mit Hiss-IT." data-en="Operation and configuration of the corporate firewall and VPN connections. Current rollout with Hiss-IT.">Betrieb und Konfiguration der Unternehmens-Firewall und VPN-Zugänge. Aktueller Rollout mit Hiss-IT.</div></div>
+    <div class="resp-card reveal"><div class="resp-icon">👥</div><div class="resp-title" data-de="User & AD Management" data-en="User & AD Management">User & AD Management</div><div class="resp-text" data-de="Active Directory, GPO, Benutzer- und Gruppenmanagement. Onboarding neuer Mitarbeiter mit Laptop-Setup." data-en="Active Directory, GPO, user and group management. Onboarding of new employees including laptop setup.">Active Directory, GPO, Benutzer- und Gruppenmanagement. Onboarding neuer Mitarbeiter mit Laptop-Setup.</div></div>
+    <div class="resp-card reveal"><div class="resp-icon">💾</div><div class="resp-title" data-de="File Server & Storage" data-en="File Server & Storage">File Server & Storage</div><div class="resp-text" data-de="Verwaltung von File-Servern, Netzwerklaufwerken, Berechtigungsstrukturen und Storage-Infrastruktur." data-en="Administration of file servers, network drives, permission structures, and storage infrastructure.">Verwaltung von File-Servern, Netzwerklaufwerken, Berechtigungsstrukturen und Storage-Infrastruktur.</div></div>
+    <div class="resp-card reveal"><div class="resp-icon">📱</div><div class="resp-title" data-de="Endpoint Management" data-en="Endpoint Management">Endpoint Management</div><div class="resp-text" data-de="Intune und Baramundi für zentrale Geräteverwaltung, Software-Deployment und Compliance-Kontrolle." data-en="Intune and Baramundi for central device management, software deployment, and compliance control.">Intune und Baramundi für zentrale Geräteverwaltung, Software-Deployment und Compliance-Kontrolle.</div></div>
+    <div class="resp-card reveal"><div class="resp-icon">📊</div><div class="resp-title" data-de="Monitoring & Backup" data-en="Monitoring & Backup">Monitoring & Backup</div><div class="resp-text" data-de="Proaktives System-Monitoring, Backup-Verwaltung mit Veeam und Incident-Response bei Störungen." data-en="Proactive system monitoring, backup management with Veeam, and incident response for outages.">Proaktives System-Monitoring, Backup-Verwaltung mit Veeam und Incident-Response bei Störungen.</div></div>
+    <div class="resp-card reveal"><div class="resp-icon">🔧</div><div class="resp-title" data-de="IT-Support & Projekte" data-en="IT Support & Projects">IT-Support & Projekte</div><div class="resp-text" data-de="2nd/3rd Level Support, Koordination mit externen Dienstleistern (BELL GmbH, Hiss-IT) und Projektleitung." data-en="2nd/3rd level support, coordination with external service providers (BELL GmbH, Hiss-IT), and project management.">2nd/3rd Level Support, Koordination mit externen Dienstleistern (BELL GmbH, Hiss-IT) und Projektleitung.</div></div>
+    <div class="resp-card reveal"><div class="resp-icon">🛡️</div><div class="resp-title" data-de="IT-Security" data-en="IT Security">IT-Security</div><div class="resp-text" data-de="Endpoint Protection, MFA-Management, Sicherheitsrichtlinien und Sensibilisierung der Belegschaft." data-en="Endpoint protection, MFA management, security policies, and staff awareness training.">Endpoint Protection, MFA-Management, Sicherheitsrichtlinien und Sensibilisierung der Belegschaft.</div></div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="reveal">
+    <div class="section-label" data-de="// Karriere" data-en="// Career">// Karriere</div>
+    <h2 class="section-title" data-de="Berufliche Erfahrung" data-en="Professional Experience">Berufliche Erfahrung</h2>
+    <div class="divider"></div>
+  </div>
+  <div class="timeline">
+
+    <div class="timeline-item reveal">
+      <div class="timeline-period">05/2023 – HEUTE</div>
+      <div class="timeline-company">BINOLI GmbH</div>
+      <div class="timeline-role" data-de="Senior System- und Netzwerkadministrator" data-en="Senior System and Network Administrator">Senior System- und Netzwerkadministrator</div>
+      <div class="timeline-desc" data-de="Vollverantwortung für die IT-Infrastruktur eines Unternehmens mit rund 80 Mitarbeitenden. Sicherstellung des stabilen Betriebs sowie der kontinuierlichen Weiterentwicklung der hybriden IT-Landschaft (On-Premises und Cloud). Administration von Microsoft 365, Azure AD (Entra ID), Active Directory und Exchange Online. Planung und Umsetzung von Infrastrukturmodernisierungen sowie Gewährleistung von Verfügbarkeit, Performance und IT-Sicherheit im Unternehmensumfeld." data-en="Full responsibility for the IT infrastructure of a company with approximately 80 employees. Ensuring stable operations and the continuous development of the hybrid IT landscape (on-premises and cloud). Administration of Microsoft 365, Azure AD (Entra ID), Active Directory, and Exchange Online. Planning and implementing infrastructure modernisations, as well as ensuring availability, performance, and IT security in the corporate environment.">Vollverantwortung für die IT-Infrastruktur eines Unternehmens mit rund 80 Mitarbeitenden. Sicherstellung des stabilen Betriebs sowie der kontinuierlichen Weiterentwicklung der hybriden IT-Landschaft (On-Premises und Cloud). Administration von Microsoft 365, Azure AD (Entra ID), Active Directory und Exchange Online. Planung und Umsetzung von Infrastrukturmodernisierungen sowie Gewährleistung von Verfügbarkeit, Performance und IT-Sicherheit im Unternehmensumfeld.</div>
+      <div class="timeline-tech"><span class="tech-tag">M365</span><span class="tech-tag">Azure</span><span class="tech-tag">Intune</span><span class="tech-tag">Entra ID</span><span class="tech-tag">Baramundi</span><span class="tech-tag">Sophos</span><span class="tech-tag">Veeam</span></div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-period">01/2023 – 04/2023</div>
+      <div class="timeline-company">Dastex Reinraumzubehör GmbH & Co. KG</div>
+      <div class="timeline-role" data-de="IT-Systemadministrator | Internal IT – 1st/2nd Level Support" data-en="IT Systems Administrator | Internal IT – 1st/2nd Level Support">IT-Systemadministrator | Internal IT – 1st/2nd Level Support</div>
+      <div class="timeline-desc" data-de="Eigenverantwortliche Analyse, Priorisierung und Behebung technischer Störungen im 1st- und 2nd-Level-Support nach ITIL-Incident-Management. Verwaltung von Exchange-Ressourcenpostfächern, Verteilergruppen sowie organisationsweiten Kalenderberechtigungen. Durchführung von MFA-Rollouts und Konfiguration von Conditional-Access-Richtlinien in Microsoft Entra ID zur Absicherung von Benutzerzugriffen." data-en="Independent analysis, prioritisation, and resolution of technical incidents in 1st and 2nd level support in accordance with ITIL incident management. Administration of Exchange resource mailboxes, distribution groups, and organisation-wide calendar permissions. Execution of MFA rollouts and configuration of Conditional Access policies in Microsoft Entra ID to secure user access.">Eigenverantwortliche Analyse, Priorisierung und Behebung technischer Störungen im 1st- und 2nd-Level-Support nach ITIL-Incident-Management. Verwaltung von Exchange-Ressourcenpostfächern, Verteilergruppen sowie organisationsweiten Kalenderberechtigungen. Durchführung von MFA-Rollouts und Konfiguration von Conditional-Access-Richtlinien in Microsoft Entra ID zur Absicherung von Benutzerzugriffen.</div>
+      <div class="timeline-tech"><span class="tech-tag">Exchange</span><span class="tech-tag">Entra ID</span><span class="tech-tag">MFA</span><span class="tech-tag">Conditional Access</span><span class="tech-tag">ITIL</span></div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-period">09/2019 – 12/2022</div>
+      <div class="timeline-company">Hosting Solutions GmbH</div>
+      <div class="timeline-role" data-de="Ausbildung zum Fachinformatiker für Systemintegration" data-en="Apprenticeship – IT Specialist for System Integration">Ausbildung zum Fachinformatiker für Systemintegration</div>
+      <div class="timeline-desc" data-de="Praxisorientierte Ausbildung mit Einsätzen in den Bereichen Serveradministration, Netzwerktechnik, Client Services, SAP und IT-Servicedesk. Aktive Mitwirkung an realen IT-Projekten sowie kontinuierliche Vertiefung technischer Fachkenntnisse in produktiven Unternehmensumgebungen." data-en="Practice-oriented apprenticeship with assignments in server administration, network technology, client services, SAP, and IT service desk. Active participation in real IT projects and continuous deepening of technical expertise in productive company environments.">Praxisorientierte Ausbildung mit Einsätzen in den Bereichen Serveradministration, Netzwerktechnik, Client Services, SAP und IT-Servicedesk. Aktive Mitwirkung an realen IT-Projekten sowie kontinuierliche Vertiefung technischer Fachkenntnisse in produktiven Unternehmensumgebungen.</div>
+      <div class="timeline-tech"><span class="tech-tag">Systemintegration</span><span class="tech-tag">Netzwerktechnik</span><span class="tech-tag">SAP</span><span class="tech-tag">IT-Servicedesk</span></div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-period">12/2017 – 08/2019</div>
+      <div class="timeline-company">IT-Solution Schnell</div>
+      <div class="timeline-role" data-de="IT-Systemadministrator" data-en="IT Systems Administrator">IT-Systemadministrator</div>
+      <div class="timeline-desc" data-de="Verantwortung für den technischen Anwender- und Kundensupport (Remote und vor Ort) sowie die Durchführung zielgerichteter Anwenderschulungen. Zentrales Monitoring der Rechenzentrumsressourcen (Server, Storage und Netzwerk) zur Sicherstellung eines störungsfreien IT-Betriebs im Rahmen der 24/7-Rufbereitschaft. Planung, Implementierung und Konfiguration von Windows- und Linux-Systemen zur Unterstützung skalierbarer IT-Infrastrukturen." data-en="Responsible for technical user and customer support (remote and on-site) as well as conducting targeted user training. Central monitoring of data centre resources (servers, storage, and network) to ensure uninterrupted IT operations within a 24/7 on-call rotation. Planning, implementing, and configuring Windows and Linux systems to support scalable IT infrastructures.">Verantwortung für den technischen Anwender- und Kundensupport (Remote und vor Ort) sowie die Durchführung zielgerichteter Anwenderschulungen. Zentrales Monitoring der Rechenzentrumsressourcen (Server, Storage und Netzwerk) zur Sicherstellung eines störungsfreien IT-Betriebs im Rahmen der 24/7-Rufbereitschaft. Planung, Implementierung und Konfiguration von Windows- und Linux-Systemen zur Unterstützung skalierbarer IT-Infrastrukturen.</div>
+      <div class="timeline-tech"><span class="tech-tag">Windows Server</span><span class="tech-tag">Linux</span><span class="tech-tag">Monitoring</span><span class="tech-tag">Netzwerk</span><span class="tech-tag">24/7-Support</span></div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-period">06/2012 – 11/2015</div>
+      <div class="timeline-company">Gravo Print · Doha, Qatar</div>
+      <div class="timeline-role" data-de="Technischer Support und Netzwerkadministrator" data-en="Technical Support and Network Administrator">Technischer Support und Netzwerkadministrator</div>
+      <div class="timeline-desc" data-de="Schnelle und strukturierte Behebung von Hardware-, Software- und Systemstörungen zur Minimierung von Ausfallzeiten. Implementierung und Betrieb standardisierter Client- und Server-Baselines zur Sicherstellung einer stabilen IT-Infrastruktur. Proaktives Monitoring sowie kontinuierliche Optimierung der System- und Netzwerkperformance. Umsetzung von WAN- und LAN-Optimierungen zur Verbesserung von Verfügbarkeit und Effizienz." data-en="Fast and structured resolution of hardware, software, and system failures to minimise downtime. Implementation and operation of standardised client and server baselines to ensure a stable IT infrastructure. Proactive monitoring and continuous optimisation of system and network performance. Implementation of WAN and LAN optimisations to improve availability and efficiency.">Schnelle und strukturierte Behebung von Hardware-, Software- und Systemstörungen zur Minimierung von Ausfallzeiten. Implementierung und Betrieb standardisierter Client- und Server-Baselines zur Sicherstellung einer stabilen IT-Infrastruktur. Proaktives Monitoring sowie kontinuierliche Optimierung der System- und Netzwerkperformance. Umsetzung von WAN- und LAN-Optimierungen zur Verbesserung von Verfügbarkeit und Effizienz.</div>
+      <div class="timeline-tech"><span class="tech-tag">Hardware-Support</span><span class="tech-tag">WAN/LAN</span><span class="tech-tag">Monitoring</span><span class="tech-tag">Server-Baseline</span></div>
+    </div>
+
+    <div class="timeline-item reveal">
+      <div class="timeline-period">09/2008 – 02/2011</div>
+      <div class="timeline-company">Crystal Lightings · Colombo, Sri Lanka</div>
+      <div class="timeline-role" data-de="Systemadministrator | Windows-Infrastruktur" data-en="System Administrator | Windows Infrastructure">Systemadministrator | Windows-Infrastruktur</div>
+      <div class="timeline-desc" data-de="Verantwortung für die Planung und Durchführung von OS-Migrationen sowie Versions- und Release-Upgrades. Entwicklung und Umsetzung standardisierter Konfigurationsrichtlinien sowie Pflege technischer Dokumentationen und zentraler Infrastruktur- und VoIP-Systeme. Administration und Betreuung von Windows-Server-Landschaften inklusive Active Directory, DNS und DHCP." data-en="Responsible for planning and executing OS migrations as well as version and release upgrades. Development and implementation of standardised configuration policies, and maintenance of technical documentation and central infrastructure and VoIP systems. Administration and support of Windows Server environments including Active Directory, DNS, and DHCP.">Verantwortung für die Planung und Durchführung von OS-Migrationen sowie Versions- und Release-Upgrades. Entwicklung und Umsetzung standardisierter Konfigurationsrichtlinien sowie Pflege technischer Dokumentationen und zentraler Infrastruktur- und VoIP-Systeme. Administration und Betreuung von Windows-Server-Landschaften inklusive Active Directory, DNS und DHCP.</div>
+      <div class="timeline-tech"><span class="tech-tag">Windows Server</span><span class="tech-tag">Active Directory</span><span class="tech-tag">DNS/DHCP</span><span class="tech-tag">VoIP</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CERTIFICATIONS -->
+<section id="certifications">
+  <div class="reveal">
+    <div class="section-label" data-de="// Ausbildung & Zertifikate" data-en="// Education & Certifications">// Ausbildung & Zertifikate</div>
+    <h2 class="section-title" data-de="Qualifikationen" data-en="Qualifications">Qualifikationen</h2>
+    <div class="divider"></div>
+  </div>
+  <div class="certs-grid">
+    <div class="cert-card reveal"><div class="cert-icon">🌐</div><div><div class="cert-name">CCNA – Cisco Certified Network Associate</div><div class="cert-issuer">Cisco</div></div></div>
+    <div class="cert-card reveal"><div class="cert-icon">🎓</div><div><div class="cert-name" data-de="Fachinformatiker Systemintegration" data-en="IT Specialist – System Integration">Fachinformatiker Systemintegration</div><div class="cert-issuer" data-de="IHK Deutschland" data-en="IHK Germany">IHK Deutschland</div></div></div>
+    <div class="cert-card reveal"><div class="cert-icon">🐍</div><div><div class="cert-name">Python Programming</div><div class="cert-issuer">Udemy · 2024</div></div></div>
+    <div class="cert-card reveal"><div class="cert-icon">🔧</div><div><div class="cert-name" data-de="Hardware Engineering" data-en="Hardware Engineering">Hardware Engineering</div><div class="cert-issuer" data-de="Zertifizierung" data-en="Certification">Zertifizierung</div></div></div>
+    <div class="cert-card reveal"><div class="cert-icon">🎨</div><div><div class="cert-name" data-de="Graphic Design" data-en="Graphic Design">Graphic Design</div><div class="cert-issuer" data-de="Zertifizierung" data-en="Certification">Zertifizierung</div></div></div>
+    <div class="cert-card reveal"><div class="cert-icon">📐</div><div><div class="cert-name">AutoCAD</div><div class="cert-issuer">Autodesk</div></div></div>
+  </div>
+</section>
+
+<!-- HOMELAB -->
+<section id="homelab">
+  <div class="reveal">
+    <div class="section-label" data-de="// Personal Lab" data-en="// Personal Lab">// Personal Lab</div>
+    <h2 class="section-title" data-de="Homelab & Persönliche Projekte" data-en="Homelab & Personal Projects">Homelab & Persönliche Projekte</h2>
+    <div class="divider"></div>
+    <p class="section-sub" data-de="Mein privates Homelab auf einem Dell Mini PC dient als Test- und Lernumgebung für neue Technologien, Infrastrukturkonzepte und Self-Hosted Services. Neue Lösungen evaluiere und validiere ich zunächst im Homelab, bevor ich bewährte Ansätze in Unternehmensumgebungen einsetze." data-en="My private homelab on a Dell Mini PC serves as a test and learning environment for new technologies, infrastructure concepts, and self-hosted services. I evaluate and validate new solutions in the homelab first before applying proven approaches in enterprise environments.">Mein privates Homelab auf einem Dell Mini PC dient als Test- und Lernumgebung für neue Technologien, Infrastrukturkonzepte und Self-Hosted Services. Neue Lösungen evaluiere und validiere ich zunächst im Homelab, bevor ich bewährte Ansätze in Unternehmensumgebungen einsetze.</p>
+  </div>
+  <div class="homelab-grid">
+    <div class="homelab-arch reveal">
+      <div class="homelab-arch-title" data-de="// Architektur" data-en="// Architecture">// Architektur</div>
+      <div class="arch-layer">
+        <div class="arch-layer-label">Hypervisor</div>
+        <div class="arch-layer-items"><span class="arch-item">Proxmox VE</span><span class="arch-item">Dell Mini PC</span></div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-layer-label" data-de="Virtual Machines" data-en="Virtual Machines">Virtual Machines</div>
+        <div class="arch-layer-items"><span class="arch-item">Windows Server 2022</span><span class="arch-item">Ubuntu Server (Web/SSH)</span><span class="arch-item">Ubuntu Server (Docker)</span></div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-layer-label" data-de="Active Directory Stack" data-en="Active Directory Stack">Active Directory Stack</div>
+        <div class="arch-layer-items"><span class="arch-item">AD DS</span><span class="arch-item">DNS</span><span class="arch-item">DHCP</span><span class="arch-item">GPO</span></div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-layer-label" data-de="Container Stack" data-en="Container Stack">Container Stack</div>
+        <div class="arch-layer-items"><span class="arch-item">Docker</span><span class="arch-item">Portainer</span><span class="arch-item">Plex</span><span class="arch-item">Jellyfin</span><span class="arch-item">Nextcloud</span><span class="arch-item">WireGuard VPN</span></div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-layer-label" data-de="DNS & Security" data-en="DNS & Security">DNS & Security</div>
+        <div class="arch-layer-items"><span class="arch-item">AdGuard Home</span><span class="arch-item">ZimaOS</span></div>
+      </div>
+    </div>
+    <div class="homelab-tools reveal">
+      <div class="homelab-tool">
+        <div class="homelab-tool-icon">🧱</div>
+        <div><div class="homelab-tool-name">Proxmox VE</div><div class="homelab-tool-desc" data-de="Hypervisor-Plattform für alle VMs und Container. KVM-basierte Virtualisierung mit Web-GUI und CLI." data-en="Hypervisor platform for all VMs and containers. KVM-based virtualisation with web GUI and CLI.">Hypervisor-Plattform für alle VMs und Container. KVM-basierte Virtualisierung mit Web-GUI und CLI.</div></div>
+      </div>
+      <div class="homelab-tool">
+        <div class="homelab-tool-icon">🛡️</div>
+        <div><div class="homelab-tool-name">AdGuard Home</div><div class="homelab-tool-desc" data-de="Netzwerkweites DNS-Filtering und Ad-Blocking. Individuell angepasste Blocklists und Upstream-DNS." data-en="Network-wide DNS filtering and ad blocking. Individually customised blocklists and upstream DNS.">Netzwerkweites DNS-Filtering und Ad-Blocking. Individuell angepasste Blocklists und Upstream-DNS.</div></div>
+      </div>
+      <div class="homelab-tool">
+        <div class="homelab-tool-icon">🐋</div>
+        <div><div class="homelab-tool-name">Docker + Portainer</div><div class="homelab-tool-desc" data-de="Containerisierte Services mit zentralem Management über Portainer. CI/CD-Experimente und Service-Tests." data-en="Containerised services with central management via Portainer. CI/CD experiments and service testing.">Containerisierte Services mit zentralem Management über Portainer. CI/CD-Experimente und Service-Tests.</div></div>
+      </div>
+      <div class="homelab-tool">
+        <div class="homelab-tool-icon">🎬</div>
+        <div><div class="homelab-tool-name">Plex & Jellyfin</div><div class="homelab-tool-desc" data-de="Self-Hosted Mediaserver für Streaming. Vollständige Kontrolle über eigene Medienbibliothek." data-en="Self-hosted media server for streaming. Full control over your own media library.">Self-Hosted Mediaserver für Streaming. Vollständige Kontrolle über eigene Medienbibliothek.</div></div>
+      </div>
+      <div class="homelab-tool">
+        <div class="homelab-tool-icon">🪟</div>
+        <div><div class="homelab-tool-name">Windows Server 2022 Lab</div><div class="homelab-tool-desc" data-de="Vollständiges AD-Labor: Domain Controller, DNS, DHCP, GPO-Tests und Benutzerrichtlinien." data-en="Full AD lab: Domain Controller, DNS, DHCP, GPO testing, and user policies.">Vollständiges AD-Labor: Domain Controller, DNS, DHCP, GPO-Tests und Benutzerrichtlinien.</div></div>
+      </div>
+      <div class="homelab-tool">
+        <div class="homelab-tool-icon">📊</div>
+        <div><div class="homelab-tool-name">Network Monitoring</div><div class="homelab-tool-desc" data-de="Zentrale Überwachung von Servern, Diensten und Netzwerkgeräten. Echtzeit-Monitoring, Leistungsanalysen und proaktive Fehlererkennung innerhalb der Homelab-Infrastruktur." data-en="Central monitoring of servers, services, and network devices. Real-time monitoring, performance analysis, and proactive fault detection within the homelab infrastructure.">Zentrale Überwachung von Servern, Diensten und Netzwerkgeräten. Echtzeit-Monitoring, Leistungsanalysen und proaktive Fehlererkennung innerhalb der Homelab-Infrastruktur.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LEARNING -->
+<section id="learning">
+  <div class="reveal">
+    <div class="section-label" data-de="// Zukunft & Weiterbildung" data-en="// Future & Development">// Zukunft & Weiterbildung</div>
+    <h2 class="section-title" data-de="Lernziele & Spezialisierung" data-en="Learning Goals & Specialisation">Lernziele & Spezialisierung</h2>
+    <div class="divider"></div>
+    <p class="section-sub" data-de="Meine nächsten Schritte in Richtung Cloud Security, AI und beruflicher Weiterentwicklung." data-en="My next steps towards cloud security, AI, and professional development.">Meine nächsten Schritte in Richtung Cloud Security, AI und beruflicher Weiterentwicklung.</p>
+  </div>
+  <div class="learning-grid">
+    <div class="learning-card reveal">
+      <div class="learning-icon">🤖</div>
+      <div class="learning-title" data-de="Generative AI" data-en="Generative AI">Generative AI</div>
+      <div class="learning-text" data-de="Verständnis und Anwendung von LLMs, Prompt Engineering und KI-gestützter IT-Automatisierung." data-en="Understanding and application of LLMs, prompt engineering, and AI-assisted IT automation.">Verständnis und Anwendung von LLMs, Prompt Engineering und KI-gestützter IT-Automatisierung.</div>
+      <div class="learning-badge" data-de="In Progress" data-en="In Progress">In Progress</div>
+    </div>
+    <div class="learning-card reveal">
+      <div class="learning-icon">🔒</div>
+      <div class="learning-title" data-de="Advanced Cyber Security" data-en="Advanced Cyber Security">Advanced Cyber Security</div>
+      <div class="learning-text" data-de="Vertiefung in SIEM, SOC-Prozesse, Incident Response und moderne Angriffsvektoren." data-en="In-depth study of SIEM, SOC processes, incident response, and modern attack vectors.">Vertiefung in SIEM, SOC-Prozesse, Incident Response und moderne Angriffsvektoren.</div>
+      <div class="learning-badge" data-de="Geplant" data-en="Planned">Geplant</div>
+    </div>
+    <div class="learning-card reveal">
+      <div class="learning-icon">🎯</div>
+      <div class="learning-title" data-de="Penetration Testing" data-en="Penetration Testing">Penetration Testing</div>
+      <div class="learning-text" data-de="Ethical Hacking Fundamentals, Kali Linux, Metasploit und Web Application Security Testing." data-en="Ethical hacking fundamentals, Kali Linux, Metasploit, and web application security testing.">Ethical Hacking Fundamentals, Kali Linux, Metasploit und Web Application Security Testing.</div>
+      <div class="learning-badge" data-de="Geplant" data-en="Planned">Geplant</div>
+    </div>
+    <div class="learning-card reveal">
+      <div class="learning-icon">☁️</div>
+      <div class="learning-title" data-de="Cloud Security" data-en="Cloud Security">Cloud Security</div>
+      <div class="learning-text" data-de="Azure Security Center, Defender for Cloud, Compliance-Architekturen und Zero Trust in der Cloud." data-en="Azure Security Center, Defender for Cloud, compliance architectures, and Zero Trust in the cloud.">Azure Security Center, Defender for Cloud, Compliance-Architekturen und Zero Trust in der Cloud.</div>
+      <div class="learning-badge" data-de="Geplant" data-en="Planned">Geplant</div>
+    </div>
+    <div class="learning-card reveal">
+      <div class="learning-icon">🏆</div>
+      <div class="learning-title" data-de="Building Leadership & Management" data-en="Building Leadership & Management">Building Leadership & Management</div>
+      <div class="learning-text" data-de="Führung, Teammanagement, Karriereentwicklung, Führungskommunikation, Organisationspolitik, Technisches Projektmanagement, zwischenmenschliche Kommunikation, Problemmanagement, ITIL und Strategische Kommunikation." data-en="Leadership, team management, career development, leadership communication, organisational politics, technical project management, interpersonal communication, problem management, ITIL, and strategic communication.">Führung, Teammanagement, Karriereentwicklung, Führungskommunikation, Organisationspolitik, Technisches Projektmanagement, zwischenmenschliche Kommunikation, Problemmanagement, ITIL und Strategische Kommunikation.</div>
+      <div class="learning-badge" data-de="Geplant" data-en="Planned">Geplant</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="reveal">
+    <div class="section-label" data-de="// Kontakt" data-en="// Contact">// Kontakt</div>
+    <h2 class="section-title" data-de="Ich freue mich auf Ihre Nachricht." data-en="I look forward to your message.">Ich freue mich auf Ihre Nachricht.</h2>
+    <div class="divider"></div>
+    <p class="section-sub" data-de="Interessante Herausforderungen, innovative Technologien oder ein fachlicher Austausch – ich freue mich auf Ihre Nachricht." data-en="Exciting challenges, innovative technologies, or a professional exchange – I look forward to your message.">Interessante Herausforderungen, innovative Technologien oder ein fachlicher Austausch – ich freue mich auf Ihre Nachricht.</p>
+  </div>
+  <div class="contact-grid">
+    <div class="contact-info reveal">
+      <div class="contact-item"><div class="contact-item-icon">📧</div><div><div class="contact-item-label">Email</div><div class="contact-item-value">fahirfais5@gmail.com</div></div></div>
+      <div class="contact-item"><div class="contact-item-icon">📍</div><div><div class="contact-item-label" data-de="Standort" data-en="Location">Standort</div><div class="contact-item-value">Ettlingen, Baden-Württemberg, DE</div></div></div>
+      <div class="contact-item"><div class="contact-item-icon">💼</div><div><div class="contact-item-label">LinkedIn</div><div class="contact-item-value"><a href="https://www.linkedin.com/in/fahir-fais-932800300/" target="_blank" style="color:var(--text)">linkedin.com/in/fahir-fais-932800300</a></div></div></div>
+      <div class="contact-item"><div class="contact-item-icon">🐙</div><div><div class="contact-item-label">GitHub</div><div class="contact-item-value">github.com/fahir.tech</div></div></div>
+    </div>
+    <div class="contact-form reveal">
+      <div class="form-group">
+        <label class="form-label" data-de="Name" data-en="Name">Name</label>
+        <input type="text" id="form-name" class="form-input" data-placeholder-de="Ihr vollständiger Name" data-placeholder-en="Your full name" placeholder="Ihr vollständiger Name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" id="form-email" class="form-input" placeholder="ihre@email.de">
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-de="Betreff" data-en="Subject">Betreff</label>
+        <input type="text" id="form-subject" class="form-input" data-placeholder-de="Jobangebot / Projektanfrage / Austausch" data-placeholder-en="Job offer / project enquiry / exchange" placeholder="Jobangebot / Projektanfrage / Austausch">
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-de="Nachricht" data-en="Message">Nachricht</label>
+        <textarea id="form-message" class="form-textarea" data-placeholder-de="Ihre Nachricht..." data-placeholder-en="Your message..." placeholder="Ihre Nachricht..."></textarea>
+      </div>
+      <button class="form-submit" id="form-submit-btn" onclick="handleFormSubmit(this)" data-de="Nachricht senden →" data-en="Send Message →">Nachricht senden →</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">F<span>.</span>Fais</div>
+  <div class="footer-text">© 2025 Fahir Fais · Senior IT-Systemadministrator · Ettlingen, DE</div>
+  <ul class="footer-links">
+    <li><a href="#hero" data-de="Top" data-en="Top">Top</a></li>
+    <li><a href="#projects" data-de="Projekte" data-en="Projects">Projekte</a></li>
+    <li><a href="#contact" data-de="Kontakt" data-en="Contact">Kontakt</a></li>
+  </ul>
+</footer>
+
+<button id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<script>
+/* ---- LOADER ---- */
+window.addEventListener('load', () => { setTimeout(() => { document.getElementById('loader').classList.add('hide'); }, 1800); });
+
+/* ---- CANVAS ---- */
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let nodes = [], W, H;
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+resize(); window.addEventListener('resize', resize);
+function initNodes() { nodes = []; const count = Math.floor((W * H) / 14000); for (let i = 0; i < count; i++) { nodes.push({ x: Math.random()*W, y: Math.random()*H, vx: (Math.random()-0.5)*0.3, vy: (Math.random()-0.5)*0.3, r: Math.random()*1.5+0.5 }); } }
+initNodes(); window.addEventListener('resize', initNodes);
+function drawNet() { ctx.clearRect(0,0,W,H); const maxDist=140; for(let i=0;i<nodes.length;i++){const n=nodes[i];n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle='rgba(255,106,0,0.5)';ctx.fill();for(let j=i+1;j<nodes.length;j++){const m=nodes[j];const dx=n.x-m.x,dy=n.y-m.y;const d=Math.sqrt(dx*dx+dy*dy);if(d<maxDist){ctx.beginPath();ctx.moveTo(n.x,n.y);ctx.lineTo(m.x,m.y);ctx.strokeStyle=`rgba(255,106,0,${0.08*(1-d/maxDist)})`;ctx.lineWidth=0.5;ctx.stroke();}}} requestAnimationFrame(drawNet); }
+drawNet();
+
+/* ---- NAV SCROLL ---- */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 50); document.getElementById('back-top').classList.toggle('show', window.scrollY > 400); });
+
+/* ---- HAMBURGER ---- */
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobile-menu');
+hamburger.addEventListener('click', () => { mobileMenu.classList.toggle('open'); });
+function closeMobileMenu() { mobileMenu.classList.remove('open'); }
+
+/* ---- LANGUAGE SYSTEM ---- */
+let currentLang = 'de';
+
+const typedPhrases = {
+  de: ['Senior System- & Netzwerkadministrator', 'Cloud & Infrastructure Engineer', 'Microsoft 365 Specialist', 'Senior IT-Systemadministrator (Client & Infrastruktur)'],
+  en: ['Senior System & Network Administrator', 'Cloud & Infrastructure Engineer', 'Microsoft 365 Specialist', 'Senior IT Systems Administrator (Client & Infrastructure)']
+};
+let pIdx = 0, cIdx = 0, deleting = false;
+const typedEl = document.getElementById('typed-title');
+
+function typeEffect() {
+  const current = typedPhrases[currentLang][pIdx % typedPhrases[currentLang].length];
+  if (!deleting) { typedEl.textContent = current.substring(0, cIdx + 1); cIdx++; if (cIdx === current.length) { deleting = true; setTimeout(typeEffect, 2200); return; } }
+  else { typedEl.textContent = current.substring(0, cIdx - 1); cIdx--; if (cIdx === 0) { deleting = false; pIdx = (pIdx + 1) % typedPhrases[currentLang].length; } }
+  setTimeout(typeEffect, deleting ? 40 : 70);
+}
+setTimeout(typeEffect, 2000);
+
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('btn-de').classList.toggle('active', lang === 'de');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.querySelectorAll('.mobile-menu .lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === lang);
+  });
+
+  // Update all data-de / data-en elements
+  document.querySelectorAll('[data-de]').forEach(el => {
+    const val = el.getAttribute('data-' + lang);
+    if (val !== null) el.innerHTML = val;
+  });
+
+  // Update placeholders
+  document.querySelectorAll('[data-placeholder-de]').forEach(el => {
+    const val = el.getAttribute('data-placeholder-' + lang);
+    if (val) el.placeholder = val;
+  });
+
+  // Reset submit button
+  const btn = document.getElementById('form-submit-btn');
+  if (btn) btn.textContent = lang === 'de' ? 'Nachricht senden →' : 'Send Message →';
+
+  // Reset typed to avoid mismatch
+  pIdx = 0; cIdx = 0; deleting = false;
+  typedEl.textContent = '';
+}
+
+/* ---- SCROLL REVEAL ---- */
+const revealEls = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }); }, { threshold: 0.1 });
+revealEls.forEach(el => observer.observe(el));
+
+/* ---- SKILL BARS ---- */
+const barObserver = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting) { e.target.querySelectorAll('.skill-fill').forEach(fill => { fill.style.width = fill.dataset.width + '%'; }); } }); }, { threshold: 0.2 });
+document.querySelectorAll('.skill-category').forEach(cat => barObserver.observe(cat));
+
+/* ---- CONTACT FORM ---- */
+function handleFormSubmit(btn) {
+  const name    = document.getElementById('form-name').value.trim();
+  const email   = document.getElementById('form-email').value.trim();
+  const subject = document.getElementById('form-subject').value.trim();
+  const message = document.getElementById('form-message').value.trim();
+  const warnDE = 'Bitte alle Felder ausfüllen ⚠';
+  const warnEN = 'Please fill in all fields ⚠';
+  const okDE   = 'E-Mail-Programm wird geöffnet ✓';
+  const okEN   = 'Opening email client ✓';
+  const defDE  = 'Nachricht senden →';
+  const defEN  = 'Send Message →';
+  if (!name || !email || !subject || !message) {
+    btn.textContent = currentLang === 'de' ? warnDE : warnEN;
+    btn.style.background = '#e53e3e';
+    setTimeout(() => { btn.textContent = currentLang === 'de' ? defDE : defEN; btn.style.background = ''; }, 2500);
+    return;
+  }
+  const body = `Name: ${name}\nEmail: ${email}\n\n${message}`;
+  window.location.href = `mailto:fahirfais5@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  btn.textContent = currentLang === 'de' ? okDE : okEN;
+  btn.style.background = '#22c55e';
+  setTimeout(() => { btn.textContent = currentLang === 'de' ? defDE : defEN; btn.style.background = ''; }, 3500);
+}
+
+/* ---- SMOOTH SCROLL ---- */
+document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', e => { const target = document.querySelector(a.getAttribute('href')); if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }); });
+</script>
+</body>
+</html>
